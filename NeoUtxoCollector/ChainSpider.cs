@@ -101,7 +101,7 @@ namespace NeoUtxoCollector
                         myCommand.CommandText = sql;
                         myCommand.ExecuteNonQuery();
 
-                        myCommand.CommandText = height.GetUpdateHeightSql(height);
+                        myCommand.CommandText = saveHeight.GetUpdateHeightSql(height);
                         myCommand.ExecuteNonQuery();
 
                         myTrans.Commit();

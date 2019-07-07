@@ -1,12 +1,49 @@
-﻿namespace NeoUtxoCollector
-{
-    internal class SaveHeight
-    {
-        private object chainHash;
+﻿using System;
+using System.Data;
 
-        public SaveHeight(object chainHash)
+namespace NeoUtxoCollector
+{
+    internal class SaveHeight : SaveBase
+    {
+        public SaveHeight() : base()
         {
-            this.chainHash = chainHash;
+            InitDataTable(TableType.Height);
+        }
+
+        public override bool CreateTable(string name)
+        {
+            MysqlConn.CreateTable(TableType.Height, name);
+            return true;
+        }
+
+        internal uint getHeight()
+        {
+            string sql = "select height from height";
+            DataTable dt = MysqlConn.ExecuteDataSet(sql).Tables[0];
+            if (dt.Rows.Count == 0)
+            {
+                return 0;
+            }
+            else
+            {
+                return uint.Parse(dt.Rows[0]["height"].ToString()) + 1;
+            }
+        }
+
+        public string GetUpdateHeightSql(uint height)
+        {
+            string sql = "";
+
+            if (height == 0)
+            {
+                sql = $"insert into {DataTableName} values ({height})";
+            }
+            else
+            {
+                sql = $"update {DataTableName} set height = {height}";
+            }
+
+            return MysqlConn.ExecuteDataInsert(DataTableName, sql).ToString();
         }
     }
 }
