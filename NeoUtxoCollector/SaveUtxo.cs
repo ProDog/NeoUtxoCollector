@@ -18,12 +18,79 @@ namespace NeoUtxoCollector
             return true;
         }
 
-        public string GetUtxoSqlText(JToken jObject, uint height)
+        public string GetUtxoSqlText(JArray txJarray, uint height)
         {
             string sql = "";
 
-            List<string> slist = null;
-            sql += MysqlConn.InsertSqlBuilder(DataTableName, slist);
+            foreach (JObject tx in txJarray)
+            {
+                string txid = (string)tx["txid"];
+                JArray vinJA = (JArray)tx["vin"];
+                JArray voutJA = (JArray)tx["vout"];
+
+                //Utxo产生,Insert
+                if (voutJA.Count > 0)
+                {
+                    foreach (JObject vo in voutJA)
+                    {
+                        List<string> slist = new List<string>();
+
+                        slist.Add(vo["address"].ToString());
+                        slist.Add(txid);
+                        slist.Add(vo["n"].ToString());
+                        slist.Add(vo["asset"].ToString());
+                        slist.Add(vo["value"].ToString());
+                        slist.Add(height.ToString());
+                        slist.Add("");  //used
+                        slist.Add("");  //useHeight
+                        slist.Add("");  //claimed
+
+                        sql += MysqlConn.InsertSqlBuilder(DataTableName, slist);
+                    }
+                }
+
+                //Utxo使用,Update
+                if (vinJA.Count > 0)
+                {
+                    foreach (JObject vi in vinJA)
+                    {
+                        //Update 字段
+                        Dictionary<string, string> uDic = new Dictionary<string, string>();
+                        uDic.Add("used", txid);
+                        uDic.Add("useHeight", height.ToString());
+
+                        //Where 条件字段
+                        Dictionary<string, string> wDic = new Dictionary<string, string>();
+                        wDic.Add("txid", vi["txid"].ToString());
+                        wDic.Add("n", vi["n"].ToString());
+
+                        sql += MysqlConn.UpdateSqlBuilder(DataTableName, uDic, wDic);
+                    }
+                }                
+
+                if (voutJA["claims"] != null)
+                {
+                    //记录GAS领取
+                    JArray claimJA = (JArray)tx["claims"];
+                    if (claimJA.Count > 0)
+                    {
+                        foreach (JObject cl in claimJA)
+                        {
+                            //Update 字段
+                            Dictionary<string, string> uDic = new Dictionary<string, string>();
+                            uDic.Add("claimed", cl["txid"].ToString());                           
+
+                            //Where 条件字段
+                            Dictionary<string, string> wDic = new Dictionary<string, string>();
+                            wDic.Add("txid", cl["txid"].ToString());
+                            wDic.Add("n", cl["n"].ToString());
+
+                            sql += MysqlConn.UpdateSqlBuilder(DataTableName, uDic, wDic);
+                        }
+                    }
+                }
+
+            }
 
             return sql;
 

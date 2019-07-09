@@ -32,8 +32,7 @@ namespace NeoUtxoCollector
             slist.Add(jObject["time"].ToString());
             slist.Add(jObject["index"].ToString());
             slist.Add(jObject["nonce"].ToString());
-            slist.Add(jObject["nextconsensus"].ToString());         
-            slist.Add(jObject["tx"].ToString());
+            slist.Add(jObject["nextconsensus"].ToString());
             slist.Add((jObject["tx"] as JArray).Count.ToString());
 
             string sql = MysqlConn.InsertSqlBuilder(DataTableName, slist);

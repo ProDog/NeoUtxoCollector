@@ -9,9 +9,11 @@ namespace NeoUtxoCollector
     {
         public string MysqlConfig { get; }
         public string DataBaseName { get; }
-        public string RpcUrl { get; }       
+        public string RpcUrl { get; }
 
         public static Settings Default { get; }
+
+        public string ZoroHash { get; }
 
         static Settings()
         {
@@ -33,7 +35,7 @@ namespace NeoUtxoCollector
 
             DataBaseName = section.GetSection("MySql").GetSection("database").Value;
             RpcUrl = section.GetSection("RPC").GetSection("url").Value;
-           
+            ZoroHash = section.GetSection("RPC").GetSection("zorohash").Value;            
         }
        
     }

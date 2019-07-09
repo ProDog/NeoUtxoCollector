@@ -35,19 +35,52 @@ namespace NeoUtxoCollector
             switch (type)
             {
                 case TableType.Block:
-                    createSql = "create table " + tableName + " (id bigint(20) primary key auto_increment, hash varchar(255), size varchar(255), version tinyint(3)," +
-                " previousblockhash varchar(255), merkleroot varchar(255)," +
-                " time int(11), indexx int(11), nonce varchar(255), nextconsensus varchar(255), txcount varchar(45))";
+                    createSql = "create table " + tableName + " (" +
+                        "id bigint(20) primary key auto_increment, " +
+                        "hash varchar(255), " +
+                        "size varchar(255), " +
+                        "version tinyint(3)," +
+                        "previousblockhash varchar(255), " +
+                        "merkleroot varchar(255)," +
+                        "time int(11), " +
+                        "indexx int(11), " +
+                        "nonce varchar(255), " +
+                        "nextconsensus varchar(255), " +
+                        "txcount varchar(45))";
                     break;
                 case TableType.Transaction:
-                    createSql = "create table " + tableName + " (id int(11) primary key auto_increment, txid varchar(255)," +
-                " size int(11), type varchar(45), version tinyint(3), attributes varchar(2048)," +
-                " sys_fee int(11), net_fee int(11), height varchar(45))";
+                    createSql = "create table " + tableName + " (" +
+                        "id int(11) primary key auto_increment, " +
+                        "txid varchar(255)," +
+                        "size int(11), " +
+                        "type varchar(45), " +
+                        "version tinyint(3), " +
+                        "attributes varchar(2048)," +
+                        "sys_fee int(11), " +
+                        "net_fee int(11), " +
+                        "height varchar(45))";
                     break;
                 case TableType.UTXO:
-                    createSql = "create table " + tableName + " (id bigint(20) primary key auto_increment, addr varchar(255), txid varchar(255)," +
-                " n int(11), asset varchar(255), value varchar(255), createHeight int(11), used varchar(255), useHeight int(11), claimed varchar(255))";
-                    break;               
+                    createSql = "create table " + tableName + " (" +
+                        "id bigint(20) primary key auto_increment, " +
+                        "addr varchar(255), " +
+                        "txid varchar(255)," +
+                        "n int(11), " +
+                        "asset varchar(255), " +
+                        "value varchar(255), " +
+                        "createHeight int(11), " +
+                        "used varchar(255), " +
+                        "useHeight int(11), " +
+                        "claimed varchar(255))";
+                    break;
+                case TableType.Address_tx:
+                    createSql = "create table " + tableName + " (" +
+                        "id int(11) primary key auto_increment, " +
+                        "addr varchar(255)," +
+                        "txid varchar(255), " +
+                        "blockindex int(11), " +
+                        "blocktime varchar(255))";
+                    break;
                 case TableType.Height:
                     createSql = "create table " + tableName + " (height varchar(255))";
                     break;

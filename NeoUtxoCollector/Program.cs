@@ -20,6 +20,9 @@ namespace NeoUtxoCollector
 
         static void Main(string[] args)
         {
+            //var a = ThinNeo.Helper.Bytes2HexString(new ThinNeo.Hash160("0x7e2b538aa6015e06b0a036f2bfdc07077c5368b4"));
+            //Console.WriteLine(a);
+
             var logRepository = LogManager.GetRepository(Assembly.GetExecutingAssembly());
             XmlConfigurator.Configure(logRepository, new FileInfo(@"log4net.config"));
             GlobalContext.Properties["pname"] = Assembly.GetEntryAssembly().GetName().Name;

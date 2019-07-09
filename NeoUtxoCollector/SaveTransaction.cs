@@ -7,6 +7,7 @@ namespace NeoUtxoCollector
     internal class SaveTransaction : SaveBase
     {
         private SaveUtxo saveUtxo;
+        private SaveNotify saveNotify;
 
         public SaveTransaction()
             : base()
@@ -14,6 +15,7 @@ namespace NeoUtxoCollector
             InitDataTable(TableType.Transaction);
 
             saveUtxo = new SaveUtxo();
+            saveNotify = new SaveNotify();
         }
 
         public override bool CreateTable(string name)
@@ -34,18 +36,17 @@ namespace NeoUtxoCollector
             slist.Add(jObject["sys_fee"].ToString());
             slist.Add(jObject["net_fee"].ToString());
             slist.Add(height.ToString());
-           
-
-            if (jObject["tx"] != null)
-            {
-                sql += saveUtxo.GetUtxoSqlText(jObject, height);               
-            }
 
             sql += MysqlConn.InsertSqlBuilder(DataTableName, slist);
 
-            if (jObject["type"].ToString() == "InvocationTransaction")
+            if (jObject["tx"] != null)
             {
-                sql += notify.GetNotifySqlText(jObject, blockHeight, blockTime, contractState.ContractDict);
+                sql += saveUtxo.GetUtxoSqlText(jObject["tx"] as JArray, height);
+            }
+
+            if ((string)jObject["type"] == "InvocationTransaction" && jObject["script"] != null)
+            {
+                sql += saveNotify.GetNotifySqlText(jObject, height, blockTime);
             }
 
             return sql;
