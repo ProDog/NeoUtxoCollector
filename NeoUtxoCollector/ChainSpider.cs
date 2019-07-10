@@ -17,8 +17,6 @@ namespace NeoUtxoCollector
 
         private uint currentHeight = 0;
 
-        public static uint checkHeight = 0;
-
         public ChainSpider()
         {            
             saveBlock = new SaveBlock();
@@ -29,8 +27,6 @@ namespace NeoUtxoCollector
         public void Start()
         {
             this.currentHeight = saveHeight.getHeight();
-
-            checkHeight = currentHeight;
 
             Program.Log($"Starting chain spider {currentHeight}", Program.LogLevel.Warning);
 
@@ -72,13 +68,28 @@ namespace NeoUtxoCollector
             return 0;
         }
 
+        private void Process()
+        {
+            while (true)
+            {
+                uint blockCount = GetBlockCount();
+
+                while (currentHeight < blockCount)
+                {
+                    currentHeight = GetBlock(currentHeight);
+                }
+
+                Thread.Sleep(1000);
+            }
+        }
+
         private uint GetBlock(uint height)
         {
             try
             {
                 WebClient wc = new WebClient();
                 wc.Proxy = null;
-                var getblockUrl = $"{Settings.Default.RpcUrl}/?jsonrpc=2.0&id=1&method=getblock&params=['{height},1]";
+                var getblockUrl = $"{Settings.Default.RpcUrl}/?jsonrpc=2.0&id=1&method=getblock&params=[{height},1]";
                 var info = wc.DownloadString(getblockUrl);
                 var json = JObject.Parse(info);
                 JToken result = json["result"];
@@ -142,21 +153,6 @@ namespace NeoUtxoCollector
             }
 
             return height;
-        }
-
-        private void Process()
-        {
-            while (true)
-            {
-                uint blockCount = GetBlockCount();
-
-                while (currentHeight < blockCount)
-                {
-                    currentHeight = GetBlock(currentHeight);
-                }
-
-                Thread.Sleep(1000);
-            }
         }
     }
 }

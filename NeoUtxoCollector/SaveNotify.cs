@@ -12,12 +12,10 @@ namespace NeoUtxoCollector
 {
     internal class SaveNotify : SaveBase
     {
-        private SaveAddressTransaction address_tx;
         private SaveNEP5Transfer nep5Transfer;
 
         public SaveNotify() : base()
         {
-            address_tx = new SaveAddressTransaction();
             nep5Transfer = new SaveNEP5Transfer();
         }
 
@@ -53,35 +51,7 @@ namespace NeoUtxoCollector
             {
                 JToken notifications = executions["notifications"];
 
-                foreach (JObject notify in notifications)
-                {
-                    JToken values = notify["state"]["value"];
-
-                    if (values[0]["type"].ToString() == "ByteArray")
-                    {
-                        string method = Encoding.UTF8.GetString(ThinNeo.Helper.HexString2Bytes(values[0]["value"].ToString()));
-                        string contract = notify["contract"].ToString();
-
-                        //只监控 ZORO
-                        if (contract == Settings.Default.ZoroHash && method == "transfer")
-                        {
-                            //存储 Transfer 内容
-                            JObject tx = new JObject();
-                            tx["blockindex"] = blockHeight;
-                            tx["txid"] = txid;
-                            tx["n"] = 0;
-                            tx["asset"] = contract;
-                            tx["from"] = values[1]["value"].ToString() == "" ? "" : ThinNeo.Helper_NEO.GetAddress_FromScriptHash(new ThinNeo.Hash160(values[1]["value"].ToString()));
-                            tx["to"] = ThinNeo.Helper_NEO.GetAddress_FromScriptHash(new ThinNeo.Hash160(values[2]["value"].ToString()));
-                            tx["value"] = values[3]["type"].ToString() == "ByteArray" ? new BigInteger(ThinNeo.Helper.HexString2Bytes(values[3]["value"].ToString())).ToString() :
-                            tx["value"] = BigInteger.Parse(values[3]["value"].ToString(), NumberStyles.AllowHexSpecifier).ToString();
-
-                            sql += address_tx.GetAddressTxSql(tx["to"].ToString(), tx["txid"].ToString(), blockHeight, blockTime);
-                            sql += nep5Transfer.GetNep5TransferSql(tx);
-
-                        }
-                    }
-                }
+                sql = nep5Transfer.GetNep5TransferSql(blockHeight, blockTime, txid, notifications);
             }
 
             return sql;

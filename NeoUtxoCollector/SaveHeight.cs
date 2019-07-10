@@ -18,7 +18,7 @@ namespace NeoUtxoCollector
 
         internal uint getHeight()
         {
-            string sql = "select height from height";
+            string sql = $"select height from {DataTableName}";
             DataTable dt = MysqlConn.ExecuteDataSet(sql).Tables[0];
             if (dt.Rows.Count == 0)
             {
@@ -43,7 +43,7 @@ namespace NeoUtxoCollector
                 sql = $"update {DataTableName} set height = {height}";
             }
 
-            return MysqlConn.ExecuteDataInsert(DataTableName, sql).ToString();
+            return sql;
         }
     }
 }

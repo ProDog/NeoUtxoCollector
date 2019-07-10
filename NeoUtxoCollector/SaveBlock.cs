@@ -46,9 +46,8 @@ namespace NeoUtxoCollector
                 numTx++;
             }
 
-            trans.ListClear();
-
-            Program.Log($"GetBlockSqlText height:{height} tx:{numTx}", Program.LogLevel.Warning);
+            if (numTx > 1)
+                Program.Log($"GetBlockSqlText height:{height} tx:{numTx}", Program.LogLevel.Warning);
 
             return sql;
         }

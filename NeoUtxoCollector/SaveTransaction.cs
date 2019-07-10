@@ -8,6 +8,7 @@ namespace NeoUtxoCollector
     {
         private SaveUtxo saveUtxo;
         private SaveNotify saveNotify;
+        private SaveAddressTransaction address_tx;
 
         public SaveTransaction()
             : base()
@@ -16,6 +17,7 @@ namespace NeoUtxoCollector
 
             saveUtxo = new SaveUtxo();
             saveNotify = new SaveNotify();
+            address_tx = new SaveAddressTransaction();
         }
 
         public override bool CreateTable(string name)
@@ -24,7 +26,7 @@ namespace NeoUtxoCollector
             return true;
         }
 
-        internal string GetTranSqlText(JToken jObject, uint height, uint blockTime)
+        internal string GetTranSqlText(JToken jObject, uint blockHeight, uint blockTime)
         {
             string sql = "";
             List<string> slist = new List<string>();
@@ -35,18 +37,17 @@ namespace NeoUtxoCollector
             slist.Add(jObject["attributes"].ToString());
             slist.Add(jObject["sys_fee"].ToString());
             slist.Add(jObject["net_fee"].ToString());
-            slist.Add(height.ToString());
+            slist.Add(blockHeight.ToString());
 
             sql += MysqlConn.InsertSqlBuilder(DataTableName, slist);
 
-            if (jObject["tx"] != null)
-            {
-                sql += saveUtxo.GetUtxoSqlText(jObject["tx"] as JArray, height);
-            }
+
+            sql += saveUtxo.GetUtxoSqlText(jObject, blockHeight);
+            
 
             if ((string)jObject["type"] == "InvocationTransaction" && jObject["script"] != null)
             {
-                sql += saveNotify.GetNotifySqlText(jObject, height, blockTime);
+                sql += saveNotify.GetNotifySqlText(jObject, blockHeight, blockTime);
             }
 
             return sql;

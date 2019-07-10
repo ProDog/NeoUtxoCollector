@@ -76,10 +76,23 @@ namespace NeoUtxoCollector
                 case TableType.Address_tx:
                     createSql = "create table " + tableName + " (" +
                         "id int(11) primary key auto_increment, " +
-                        "addr varchar(255)," +
+                        "address varchar(255)," +
                         "txid varchar(255), " +
+                        "type varchar(45), " +
+                        "asset varchar(255), " +
+                        "value varchar(255), " +
                         "blockindex int(11), " +
                         "blocktime varchar(255))";
+                    break;
+                case TableType.NEP5Transfer:
+                    createSql = "create table " + tableName + " (" +
+                        "id bigint(20) primary key auto_increment," +
+                        "blockindex int(11), " +
+                        "txid varchar(255)," +                        
+                        "asset varchar(255), " +
+                        "fromx varchar(255), " +
+                        "tox varchar(255), " +
+                        "value varchar(255))";
                     break;
                 case TableType.Height:
                     createSql = "create table " + tableName + " (height varchar(255))";
@@ -123,7 +136,7 @@ namespace NeoUtxoCollector
                     alterSql = "alter table " + tableName + " add index index_name (addr)";
                     break;
                 case TableType.Address_tx:
-                    alterSql = "alter table " + tableName + " add index index_name (addr)";
+                    alterSql = "alter table " + tableName + " add index index_name (address)";
                     break;
                 case TableType.Transaction:
                     alterSql = "alter table " + tableName + " add index index_name (txid)";
@@ -356,64 +369,6 @@ namespace NeoUtxoCollector
                 conn.Close();
             }
         }
-
-        public static string SaveAndUpdataHashList(string table, string hashlist)
-        {
-            var dir = new Dictionary<string, string>();
-            DataTable dt = ExecuteDataSet(table, dir).Tables[0];
-            if (dt.Rows.Count == 0)
-            {
-                var list = new List<string>();
-                list.Add(hashlist);
-                return InsertSqlBuilder(table, list);
-            }
-            else
-            {
-                var set = new Dictionary<string, string>();
-                set.Add("hashlist", hashlist);
-                return UpdateSqlBuilder(table, set, dir);
-            }
-        }
-
-        public static string SaveAndUpdataAppChainState(string table, List<string> hashlist)
-        {
-            var dir = new Dictionary<string, string>();
-            dir.Add("hash", hashlist[1]);
-            DataTable dt = ExecuteDataSet(table, dir).Tables[0];
-            if (dt.Rows.Count == 0)
-            {
-                return InsertSqlBuilder(table, hashlist);
-            }
-            else
-            {
-                var set = new Dictionary<string, string>();
-                set.Add("version", hashlist[0]);
-                set.Add("name", hashlist[2]);
-                set.Add("owner", hashlist[3]);
-                set.Add("timestamp", hashlist[4]);
-                set.Add("seedlist", hashlist[5]);
-                set.Add("validators", hashlist[6]);
-                return UpdateSqlBuilder(table, set, dir);
-            }
-        }
-    }
-
-    class TableType
-    {
-        public const string Block = "block";
-        public const string Address = "address";
-        public const string Address_tx = "address_tx";
-        public const string Transaction = "tx";
-        public const string Notify = "notify";
-        public const string NEP5Asset = "nep5asset";
-        public const string NEP5Transfer = "nep5transfer";
-        public const string UTXO = "utxo";
-        public const string Hash_List = "hashlist";
-        public const string Appchainstate = "appchainstate";
-        public const string Height = "blockheight";
-        public const string Address_Asset = "address_asset";
-        public const string Tx_Script_Method = "tx_script_method";
-        public const string Contract_State = "contract_state";
-        public const string NFT_Address = "nft_address";
+               
     }
 }
